@@ -26,15 +26,22 @@ Plug 'nvim-lua/completion-nvim'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 "Plug 'pangloss/vim-javascript'
 Plug 'sheerun/vim-polyglot'
+Plug 'pangloss/vim-javascript'
 Plug 'jiangmiao/auto-pairs'
 Plug 'luochen1990/rainbow'
 Plug 'honza/vim-snippets'
 Plug 'SirVer/ultisnips'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 " NERDTREE:
 Plug 'scrooloose/nerdtree'
 Plug 'christoomey/vim-tmux-navigator'
-
+Plug 'ryanoasis/vim-devicons'
+Plug 'itchyny/lightline.vim'
+Plug 'yggdroot/indentLine'
+Plug 'preservim/nerdcommenter'
+Plug 'voldikss/vim-floaterm'
 call plug#end()
+
 
 " SET COLORSCHEME GRUVBOX:
 colorscheme gruvbox
@@ -58,8 +65,17 @@ nmap <Leader>k :TmuxNavigateUp<CR>
 nmap <Leader>w :w<CR>
 nmap <Leader>q :q<CR>
 
+" FLOATERM:
+" buscar archivos
+nmap <Leader>l :FloatermNew --height=0.6 --width=0.4 --wintype=float --name=floaterm1 --position=topleft --autoclose=2 ranger --cmd="cd ~"<CR>
+
+nmap <Leader>m :FloatermNew --height=0.6 --width=0.4 --wintype=float --name=floaterm1 --position=topleft --autoclose=2<CR>
+
 " RAINBOW PARENTHESES:
 let g:rainbow_active = 1
+let g:rainbow#max_level = 16
+let g:rainbow#pairs = [['(', ')'], ['[', ']'], ['{', '}']]
+
 
 " UTILSNIPPED:
 let g:UltiSnipsExpandTrigger="<tab>"
@@ -69,14 +85,54 @@ let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 let g:UltiSnipsEditSplit="vertical"
 
 " LSP CONFIGURATION:
+" PARA QUE LA CONFIGURACION DE LSP FUNCIONE SE TIENE QUE INSTALAR ADEMAS EL
+" SERVIDOR DESDE LSP INSTALL EJEMPLO; :CocInstall coc-json coc-tsserver
 lua << EOF
 require'lspconfig'.tsserver.setup{on_attach=require'completion'.on_attach}
+
+require'nvim-treesitter.configs'.setup {
+  -- A list of parser names, or "all"
+  ensure_installed = { 
+        "c", 
+        "lua", 
+        "rust",
+        "javascript"
+        },
+
+  -- Install parsers synchronously (only applied to `ensure_installed`)
+  sync_install = false,
+
+  -- List of parsers to ignore installing (for "all")
+  ignore_install = { "" },
+
+  highlight = {
+    -- `false` will disable the whole extension
+    enable = true,
+
+    -- NOTE: these are the names of the parsers and not the filetype. (for example if you want to
+    -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
+    -- the name of the parser)
+    -- list of language that will be disabled
+    disable = {},
+
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
+    additional_vim_regex_highlighting = false,
+  },
+}
+
 EOF
 
-" CONFIGURATION FOR REDIMENSION WINDOWS
+" CONFIGURATION FOR REDIMENSION WINDOWS:
 nmap <Leader>- :4winc<<CR>
 nmap <Leader>+ :4winc><CR>
 
+let laststatus=2
+let g:lightline = {
+      \ 'colorscheme': 'jellybeans',
+      \ }
 "----------------------------------------------------------------------------------
 
 " TextEdit might fail if hidden is not set.
@@ -241,3 +297,7 @@ nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
 nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list.
 nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+
+
+" ------------------------------------------------------------------------------
+"

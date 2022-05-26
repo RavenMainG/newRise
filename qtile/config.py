@@ -23,6 +23,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from libqtile import bar, layout, widget
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
@@ -36,10 +37,11 @@ from libqtile import qtile
 from libqtile import hook
 #from libqtile.command_client.cmd_spawn import cmd_spawn
 
+
 # Variables de entorno
 
 # Incio, variables para controlar de forma alternativa el enfoque, el desplazamiento
-# de ventanas y el ajuste de ventanas con las flechas del teclado 
+# de ventanas y el ajuste de ventanas con las flechas del teclado
 l = "Left"
 r = "Right"
 d = "Down"
@@ -53,11 +55,22 @@ colorsNord = [
     ['#b4beed', '#b4beed']  # color de el enfoque de las ventanas
 ]
 
+backgroundColor = '#000000.0'
+
+# Variables de uso
+
+# Terminales
+tilix = 'tilix'
+alacritty = 'alacritty'
+kitty = 'kitty'
+navegador = 'google-chrome-stable'
+
 mod = "mod4"
-myTerm = "kitty"
-terminal = guess_terminal()
+terminal = alacritty
 
 keys = [
+    # A list of available commands that can be bound to keys can be found
+    # at https://docs.qtile.org/en/latest/manual/config/lazy.html
     # Switch between windows
     Key([mod], "h", lazy.layout.left(), desc="Move focus to left"),
     Key([mod], "l", lazy.layout.right(), desc="Move focus to right"),
@@ -65,7 +78,7 @@ keys = [
     Key([mod], "k", lazy.layout.up(), desc="Move focus up"),
     Key([mod], "space", lazy.layout.next(), desc="Move window focus to other window"),
 
-    # Switch between windows ALTERNATIVE WHIT ARROWS 
+    # ++Switch between windows ALTERNATIVE WHIT ARROWS 
     Key([mod], l, lazy.layout.left(), desc="Move focus to left"),
     Key([mod], r, lazy.layout.right(), desc="Move focus to right"),
     Key([mod], d, lazy.layout.down(), desc="Move focus down"),
@@ -78,8 +91,7 @@ keys = [
     Key([mod, "shift"], "j", lazy.layout.shuffle_down(), desc="Move window down"),
     Key([mod, "shift"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
 
-    # Move windows between left/right columns or move up/down in current stack ALTERNATIVE WHIT ARROWS
-
+    # ++Move windows between left/right columns or move up/down in current stack ALTERNATIVE WHIT ARROWS
     Key([mod, "shift"], l, lazy.layout.shuffle_left(), desc="Move window to the left"),
     Key([mod, "shift"], r, lazy.layout.shuffle_right(), desc="Move window to the right"),
     Key([mod, "shift"], d, lazy.layout.shuffle_down(), desc="Move window down"),
@@ -94,7 +106,6 @@ keys = [
     Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
 
     # Grow windows. If current window is on the edge of screen and direction ALTERNATIVE WHIT ARROWS
-
     Key([mod, "control"], l, lazy.layout.grow_left(), desc="Grow window to the left"),
     Key([mod, "control"], r, lazy.layout.grow_right(), desc="Grow window to the right"),
     Key([mod, "control"], d, lazy.layout.grow_down(), desc="Grow window down"),
@@ -117,7 +128,10 @@ keys = [
     # Key mod for fullscreen
     Key([mod], "m", lazy.window.toggle_fullscreen()),
 
-    Key([mod], "Return", lazy.spawn(myTerm), desc="Launch terminal"),
+    # Comands for terminal
+
+    Key([mod, 'control'], "Return", lazy.spawn(tilix), desc="Launch terminal"),
+    Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
     # Toggle between different layouts as defined below
     Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
     Key([mod], "w", lazy.window.kill(), desc="Kill focused window"),
@@ -126,22 +140,43 @@ keys = [
     Key([mod], "r", lazy.spawncmd(), desc="Spawn a command using a prompt widget"),
 
     # Key mod for rofi
-    Key([mod], 'd', lazy.spawn('/home/pandora/.config/rofi/launchers/ribbon/launcher.sh'), desc = 'Lanza rofi'),
-    Key([mod], 'x', lazy.spawn('/home/pandora/.config/rofi/applets/android/powermenu.sh'), desc= 'lanza menu de energia'),
-    Key([mod], 'i', lazy.spawn('rofi -show wifi-menu:~/.local/bin/rofi-wifi-menu.sh'), desc= 'lanza menu de wifi'),
-    Key([mod], 'p', lazy.spawn('/home/pandora/.config/rofi/applets/android/apps.sh'), desc= 'lanza un menu de acceso rapido de rofi'),
+    Key([mod], 'd', lazy.spawn('/home/pandora/.config/configQtile/rofi/launchers/ribbon/launcher.sh'), desc = 'Lanza rofi'),
+    Key([mod], 'x', lazy.spawn('/home/pandora/.config/configQtile/rofi/applets/android/powermenu.sh'), desc= 'lanza menu de energia'),
+    Key([mod], 'i', lazy.spawn('/home/pandora/.config/configQtile/rofi/applets/applets/network.sh'), desc= 'lanza menu de wifi'),
+    Key([mod], 'p', lazy.spawn('/home/pandora/.config/configQtile/rofi/applets/android/apps.sh'), desc= 'lanza un menu de acceso rapido de rofi'),
 
     # Key for Brigthness
     Key([], 'XF86MonBrightnessUp', lazy.spawn('brightnessctl set +5%')),
     Key([], 'XF86MonBrightnessDown', lazy.spawn('brightnessctl set 5%-')),
 
-    # Key for volume
-    Key([], 'XF86AudioRaiseVolume', lazy.spawn('pactl set-sink-volume @DEFAULT_SINK@ +5%')),
-    Key([], 'XF86AudioLowerVolume', lazy.spawn('pactl set-sink-volume @DEFAULT_SINK@ -5%')),
-    Key([], 'XF86AudioMute', lazy.spawn('pactl set-sink-mute @DEFAULT_SINK@ toggle')),
+    Key([mod], "e", lazy.spawn(navegador), desc="Launch terminal"),
 ]
 
-#groups = [Group(i) for i in "123456789"]
+# groups = [Group(i) for i in "123456789"]
+
+# for i in groups:
+#     keys.extend(
+#         [
+#             # mod1 + letter of group = switch to group
+#             Key(
+#                 [mod],
+#                 i.name,
+#                 lazy.group[i.name].toscreen(),
+#                 desc="Switch to group {}".format(i.name),
+#             ),
+#             # mod1 + shift + letter of group = switch to & move focused window to group
+#             Key(
+#                 [mod, "shift"],
+#                 i.name,
+#                 lazy.window.togroup(i.name, switch_group=True),
+#                 desc="Switch to & move focused window to group {}".format(i.name),
+#             ),
+#             # Or, use below if you prefer not to switch to that group.
+#             # # mod1 + shift + letter of group = move focused window to group
+#             # Key([mod, "shift"], i.name, lazy.window.togroup(i.name),
+#             #     desc="move focused window to group {}".format(i.name)),
+#         ]
+#     )
 
 __groups = {
     1: Group(""),
@@ -182,8 +217,7 @@ for i in groups:
 
 layouts = [
     layout.Columns(
-        #border_focus_stack=["#20daaa", "#20daaa"],
-        border_focus = colorsNord[1],#"#ffadbb", 
+        border_focus = colorsNord[1],
         border_normal = colorsNord[0],
         border_width=4,
         margin = 7,
@@ -210,13 +244,11 @@ widget_defaults = dict(
 )
 extension_defaults = widget_defaults.copy()
 
-
 screens = [
     Screen(
         top=bar.Bar(
-            [   
-                
-            widget.TextBox(
+            [
+widget.TextBox(
                 font = 'Hack Nerd Font',
                 background = '#585b6a',
                 padding = 0,
@@ -257,7 +289,6 @@ screens = [
                 text = '',
                 fontsize = 30
             ),
-
             widget.GroupBox(
                 font= "Fira Code Nerd Font",#"Hack Nerd Font",
                 background = '#585b6a',
@@ -280,91 +311,28 @@ screens = [
                 fontsize = 30
             ),
             widget.TextBox(
-                padding = 125
-            ),
-            widget.Chord(
-                chords_colors={
-                    "launch": ("#ff0000", "#ffffff"),
-                },
-                name_transform=lambda name: name.upper(),
+                padding = 150
             ),
             widget.TextBox(
                 font = 'Hack Nerd Font',
-                background = '#000000.0',
-                padding = 0,
-                foreground = '#585b6a',
-                text = '',
-                fontsize = 30
-            ),
-            widget.TextBox(
-                font = 'Hack Nerd Font',
-                background = '#585b6a',
+                background = backgroundColor,
                 padding = 0,
                 foreground = '#fff04f',
                 text = '  ',
                 fontsize = 20
             ),
             widget.ThermalSensor(
-                background = '#585b6a',
-                foreground = '#fffaf2',
-                fmt = ': {}',
+                background = backgroundColor,
+                foreground = '#fffd4c',
+                fmt = '{}',
                 tag_sensor = "Core 0"
             ),
             widget.TextBox(
-                font = 'Hack Nerd Font',
-                background = '#585b6a',
-                padding = 0,
-                foreground = '#b9b6f7',
-                text = '  ',
-                fontsize = 20
+                padding = 5
             ),
             widget.TextBox(
                 font = 'Hack Nerd Font',
-                background = '#585b6a',
-                padding = 0,
-                foreground = '#fff04f',
-                text = ' :',
-                fontsize = 23
-            ),
-            widget.Memory(
-                foreground = '#fffaf2',
-                background = '#585b6a',
-                mouse_callbacks = {'Button1': lambda: qtile.cmd_spawn(myTerm + ' -e btop')},
-                fmt = '{}'
-            ),
-            widget.TextBox(
-                font = 'Hack Nerd Font',
-                background = '#585b6a',
-                padding = 0,
-                foreground = '#b9b6f7',
-                text = '  ',
-                fontsize = 20
-            ),
-            widget.TextBox(
-                font = 'Hack Nerd Font',
-                background = '#585b6a',
-                padding = 0,
-                foreground = '#fff04f',
-                text = ' 墳:',
-                fontsize = 20
-            ),
-            widget.PulseVolume(
-                foreground = '#fffaf2',
-                background = '#585b6a',
-                limit_max_volume = True,
-                fmt = ' {} '
-            ),
-            widget.TextBox(
-                font = 'Hack Nerd Font',
-                background = '#585b6a',
-                padding = 0,
-                foreground = '#b9b6f7',
-                text = ' ',
-                fontsize = 20
-            ),
-            widget.TextBox(
-                font = 'Hack Nerd Font',
-                background = '#585b6a',
+                background = backgroundColor,
                 padding = 0,
                 foreground = '#fff04f',
                 text = ' :',
@@ -372,25 +340,25 @@ screens = [
             ),
             widget.Backlight(
                 backlight_name = 'intel_backlight',
-                background = '#585b6a',
-                fmt = ' {}    '
+                background = backgroundColor,
+                font = 'Hack Nerd Font',
+                fmt = '{}'
             ),
-
+            widget.Systray(
+                padding = 30,
+                icon_size = 25
+            )
+            
             ],
-
             30,
             # border_width=[2, 0, 2, 0],  # Draw top and bottom borders
             margin = [5, 15, 5, 15],
             # Transparencia a la barra aplicando opacidad a los elementos importantes
             background="#000000.0", 
             opacity=1,
+            # border_width=[2, 0, 2, 0],  # Draw top and bottom borders
             # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
         ),
-
-        # Es configuracion es para controlar de forma precisa los bordes de las ventanas
-        #bottom=bar.Gap(10),
-        #left=bar.Gap(10),
-        #right=bar.Gap(10),
     ),
 ]
 
@@ -429,7 +397,6 @@ auto_minimize = True
 # When using the Wayland backend, this can be used to configure input devices.
 wl_input_rules = None
 
-
 # XXX: Gasp! We're lying here. In fact, nobody really uses or cares about this
 # string besides java UI toolkits; you can see several discussions on the
 # mailing lists, GitHub issues, and other WM documentation that suggest setting
@@ -439,6 +406,7 @@ wl_input_rules = None
 # We choose LG3D to maximize irony: it is a 3D non-reparenting WM written in
 # java that happens to be on java's whitelist.
 wmname = "LG3D"
+
 
 # Configuraciones de scripts
 
